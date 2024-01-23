@@ -54,7 +54,8 @@ var ipitch_cycle : float = 2.0        # default: 2.0
 var iyaw_level : float = 0.1          # default: 0.1
 var iroll_level : float = 0.2         # default: 0.2
 var ipitch_level : float = 0.15       # default: 0.15
-var mouse_sensitivity : float = 0.1
+export var mouse_sensitivity : float = 480.0
+export var gamepad_look_sensitivity : float = 200.0
 
 const kick_time : float = 0.5         # default: 0.5
 const kick_amount : float = 0.6       # default: 0.6
@@ -75,25 +76,47 @@ func _ready():
 """
 ===============
 _input
+
+Handle gamepad input and mouse input
 ===============
 """
 func _input(event):
 	if event is InputEventMouseMotion:
-		mouse_move = event.relative * 0.1
-		mouse_rotation_x -= event.relative.y * mouse_sensitivity
+		var screen_size = OS.window_size	# Get screen size
+		var normalized_mouse_move = event.relative / screen_size	# Normalize mouse movement
+
+		# Apply the calculated sensitivity
+		mouse_move = normalized_mouse_move * mouse_sensitivity
+
+		# Update mouse rotations with normalized values
+		mouse_rotation_x -= normalized_mouse_move.y * mouse_sensitivity
 		mouse_rotation_x = clamp(mouse_rotation_x, -90, 90)
-		player.rotate_y(deg2rad(-event.relative.x * mouse_sensitivity))
+		player.rotate_y(deg2rad(-normalized_mouse_move.x * mouse_sensitivity))
 	
 	if Input.is_key_pressed(KEY_P):
 		trigger_shake(5.0)
+	
+func get_gamepad_camera_input_vector():
+	var direction: Vector2 = Vector2.ZERO
+	direction.x = Input.get_action_strength("gamepad_look_right") - Input.get_action_strength("gamepad_look_left")
+	direction.y = Input.get_action_strength("gamepad_look_down") - Input.get_action_strength("gamepad_look_up")
+	return direction.normalized() if direction.length() > 1 else direction
+
+func handle_gamepad_look(delta):
+	var direction: Vector2 = get_gamepad_camera_input_vector()
+	mouse_move = direction * delta * gamepad_look_sensitivity ## formerly: mouse_move = event.relative * 0.1
+	mouse_rotation_x -= direction.y * delta * gamepad_look_sensitivity
+	mouse_rotation_x = clamp(mouse_rotation_x, -90, 90)
+	player.rotate_y(deg2rad(-direction.x * delta * gamepad_look_sensitivity))
 
 """
 ===============
-_process
+_physics_process
 ===============
 """
 func _physics_process(delta):
-	
+	handle_gamepad_look(delta)
+
 	deltaTime = delta
 	
 	if player.is_dead:

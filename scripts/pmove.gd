@@ -58,12 +58,15 @@ func _input(_event):
 		smove = 0.0
 		jump_press = false
 		return
-	
+		
 	fmove = Input.get_action_strength("move_forward") - Input.get_action_strength("move_backward")
 	smove = Input.get_action_strength("move_right") - Input.get_action_strength("move_left")
 	
 	movespeed = WALKSPEED if Input.is_action_pressed("shift") else MAXSPEED
 	
+	# hold down the button to jump repeatedly (Quake Live style! Also makes strafe-jumping easier)
+	#if Input.is_action_pressed("jump") and !jump_press:
+	#	jump_press = true
 	if Input.is_action_just_pressed("jump") and !jump_press:
 		jump_press = true
 	elif Input.is_action_just_released("jump"):
@@ -77,7 +80,7 @@ func _input(_event):
 			movespeed = WALKSPEED / 2.0
 	else:
 		crouch_press = false
-	
+
 
 """
 ===============

@@ -8,9 +8,9 @@ view_extended.gd
 - Adds view-model shake
 """
 
-onready var viewmodel = $Camera/ViewModel
+onready var viewModel = $Camera/ViewModel
 
-var viewmodel_origin = Vector3(0.5, -0.4, -0.75) # set this to the gun models local position
+var viewModel_origin = Vector3(0.5, -0.4, -0.75) # set this to the gun models local position
 var swayPos : Vector3 = Vector3.ZERO
 var swayPos_offset : float = 0.12               # default: 0.12
 var swayPos_max : float = 0.5                   # default: 0.1
@@ -32,7 +32,7 @@ _ready
 ===============
 """
 func _ready():
-	swayPos = viewmodel_origin
+	swayPos = viewModel_origin
 
 """
 ===============
@@ -43,8 +43,8 @@ func _physics_process(_delta):
 	if player.is_dead:
 		return
 	
-	viewmodel.transform.origin = viewmodel_origin
-	viewmodel.rotation_degrees = Vector3.ZERO
+	viewModel.transform.origin = viewModel_origin
+	viewModel.rotation_degrees = Vector3.ZERO
 	
 	view_model_sway()
 	
@@ -72,14 +72,14 @@ func view_model_sway():
 	pos.x = clamp(-mouse_move.x * swayPos_offset, -swayPos_max, swayPos_max)
 	pos.y = clamp(mouse_move.y * swayPos_offset, -swayPos_max, swayPos_max)
 	swayPos = lerp(swayPos, pos, swayPos_speed * deltaTime)
-	viewmodel.transform.origin += swayPos
+	viewModel.transform.origin += swayPos
 	
 	rot = Vector3.ZERO
 	rot.x = clamp(-mouse_move.y * swayRot_angle, -swayRot_max, swayRot_max)
 	rot.z = clamp(mouse_move.x * swayRot_angle, -swayRot_max/3, swayRot_max/3)
 	rot.y = clamp(-mouse_move.x * swayRot_angle, -swayRot_max, swayRot_max)
 	swayRot = lerp(swayRot, rot, swayRot_speed * deltaTime)
-	viewmodel.rotation_degrees += swayRot
+	viewModel.rotation_degrees += swayRot
 
 """
 ===============
@@ -88,8 +88,8 @@ view_model_idle
 """
 func view_model_idle():
 	for i in range(3):
-		viewmodel.transform.origin[i] += idlePos_scale * sin(idletime * idlePos_cycle[i]) * idlePos_level[i]
-		viewmodel.rotation_degrees[i] += idleRot_scale * sin(idletime * idleRot_cycle[i]) * idleRot_level[i]
+		viewModel.transform.origin[i] += idlePos_scale * sin(idletime * idlePos_cycle[i]) * idlePos_level[i]
+		viewModel.rotation_degrees[i] += idleRot_scale * sin(idletime * idleRot_cycle[i]) * idleRot_level[i]
 
 """
 ===============
@@ -100,9 +100,9 @@ Bob view model on xyz axes
 """
 func view_model_bob():
 	for i in range(3):
-		viewmodel.transform.origin[i] += bobRight * 0.25 * transform.basis.x[i]
-		viewmodel.transform.origin[i] += bobUp * 0.125 * transform.basis.y[i]
-		viewmodel.transform.origin[i] += bobForward * 0.06125 * transform.basis.z[i]
+		viewModel.transform.origin[i] += bobRight * 0.25 * transform.basis.x[i]
+		viewModel.transform.origin[i] += bobUp * 0.125 * transform.basis.y[i]
+		viewModel.transform.origin[i] += bobForward * 0.06125 * transform.basis.z[i]
 
 """
 ===============
@@ -114,7 +114,7 @@ func velocity_roll():
 	
 	side = calc_roll(player.velocity, rollangles, rollspeed) * 4
 	camera.rotation_degrees.z += side
-	viewmodel.rotation_degrees.z += side * tiltextra
+	viewModel.rotation_degrees.z += side * tiltextra
 
 """
 ==============
@@ -139,5 +139,5 @@ func shake(easing : int):
 		s_scale = 1.0 - shaketime/shakelength
 	
 	for i in range(3):
-		viewmodel.transform.origin[i] += s_scale * sin(shaketime * cycle[i]) * m_level[i]
+		viewModel.transform.origin[i] += s_scale * sin(shaketime * cycle[i]) * m_level[i]
 		camera.rotation_degrees[i] += s_scale * sin(shaketime * cycle[i]) * v_level[i]
